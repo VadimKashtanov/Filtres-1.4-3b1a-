@@ -54,7 +54,7 @@ static float filtre(float * x, float * dif_x, float * f, float * locd) {
 void intel_filtres_prixs___naive(
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint f_par_bloque, uint * ligne, uint * decales,
+	uint bloques, uint f_par_bloque, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,
@@ -64,8 +64,8 @@ void intel_filtres_prixs___naive(
 		FOR(0, b, bloques) {
 			FOR(0, _f, f_par_bloque) {
 				y[(depart+t)*bloques*f_par_bloque + b*f_par_bloque + _f] = filtre(
-						x + ligne[b]*PRIXS*N_FLTR + (depart+t-decales[b])*N_FLTR,
-					dif_x + ligne[b]*PRIXS*N_FLTR + (depart+t-decales[b])*N_FLTR,
+						x + b*PRIXS*N_FLTR + (depart+t-decales[b])*N_FLTR,
+					dif_x + b*PRIXS*N_FLTR + (depart+t-decales[b])*N_FLTR,
 					f     + b*f_par_bloque*N     + _f*N,
 					locd  + (depart+t)*(bloques*f_par_bloque*2) + b*(f_par_bloque*2) + _f*2
 				);
@@ -92,7 +92,7 @@ static void d_filtre(float * x, float * dif_x, float * f, float * locd, float * 
 void  d_intel_filtres_prixs___naive(
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint f_par_bloque, uint * ligne, uint * decales,
+	uint bloques, uint f_par_bloque, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,
@@ -104,12 +104,12 @@ void  d_intel_filtres_prixs___naive(
 		FOR(0, b, bloques) {
 			FOR(0, _f, f_par_bloque) {
 				d_filtre(
-						x + ligne[b]*PRIXS*N_FLTR + (depart+t-decales[b])*N_FLTR,
-					dif_x + ligne[b]*PRIXS*N_FLTR + (depart+t-decales[b])*N_FLTR,
+						x + b*PRIXS*N_FLTR + (depart+t-decales[b])*N_FLTR,
+					dif_x + b*PRIXS*N_FLTR + (depart+t-decales[b])*N_FLTR,
 					f     + b*f_par_bloque*N     + _f*N,
 					locd  + (depart+t)*(bloques*f_par_bloque*2) + b*(f_par_bloque*2) + _f*2,
-					dy + (depart+t)*bloques*f_par_bloque + b*f_par_bloque + _f,
-					df     + b*f_par_bloque*N     + _f*N
+					dy    + (depart+t)*bloques*f_par_bloque     + b*f_par_bloque     + _f,
+					df    + b*f_par_bloque*N     + _f*N
 				);
 			}
 		}
@@ -124,8 +124,8 @@ void f_filtres_prixs(Mdl_t * mdl, uint inst, uint mode, uint t0, uint t1) {
 		intel_filtres_prixs___naive(
 			X_vars, Y_vars,
 			depart, T,
-			BLOQUES, F_PAR_BLOQUES, mdl->lignes, mdl->decales,
-			normalisee, dif_normalisee,
+			BLOQUES, F_PAR_BLOQUES, mdl->decales,
+			mdl->normalisee, mdl->dif_normalisee,
 			mdl->p[inst],
 			mdl->y[inst],
 			mdl->l[inst]);
@@ -133,8 +133,8 @@ void f_filtres_prixs(Mdl_t * mdl, uint inst, uint mode, uint t0, uint t1) {
 		nvidia_filtres_prixs___naive(
 			X_vars, Y_vars,
 			depart, T,
-			BLOQUES, F_PAR_BLOQUES, mdl->lignes__d, mdl->decales__d,
-			normalisee__d, dif_normalisee__d,
+			BLOQUES, F_PAR_BLOQUES, mdl->decales__d,
+			mdl->normalisee__d, mdl->dif_normalisee__d,
 			mdl->p__d[inst],
 			mdl->y__d[inst],
 			mdl->l__d[inst]);
@@ -142,8 +142,8 @@ void f_filtres_prixs(Mdl_t * mdl, uint inst, uint mode, uint t0, uint t1) {
 		nvidia_filtres_prixs___shared(
 			X_vars, Y_vars,
 			depart, T,
-			BLOQUES, F_PAR_BLOQUES, mdl->lignes__d, mdl->decales__d,
-			normalisee__d, dif_normalisee__d,
+			BLOQUES, F_PAR_BLOQUES, mdl->decales__d,
+			mdl->normalisee__d, mdl->dif_normalisee__d,
 			mdl->p__d[inst],
 			mdl->y__d[inst],
 			mdl->l__d[inst]);
@@ -160,8 +160,8 @@ void df_filtres_prixs(Mdl_t * mdl, uint inst, uint mode, uint t0, uint t1) {
 		d_intel_filtres_prixs___naive(
 			X_vars, Y_vars,
 			depart, T,
-			BLOQUES, F_PAR_BLOQUES, mdl->lignes, mdl->decales,
-			normalisee, dif_normalisee,
+			BLOQUES, F_PAR_BLOQUES, mdl->decales,
+			mdl->normalisee, mdl->dif_normalisee,
 			mdl->p[inst],
 			mdl->y[inst],
 			mdl->l[inst],
@@ -171,8 +171,8 @@ void df_filtres_prixs(Mdl_t * mdl, uint inst, uint mode, uint t0, uint t1) {
 		d_nvidia_filtres_prixs___naive(
 			X_vars, Y_vars,
 			depart, T,
-			BLOQUES, F_PAR_BLOQUES, mdl->lignes__d, mdl->decales__d,
-			normalisee__d, dif_normalisee__d,
+			BLOQUES, F_PAR_BLOQUES, mdl->decales__d,
+			mdl->normalisee__d, mdl->dif_normalisee__d,
 			mdl->p__d[inst],
 			mdl->y__d[inst],
 			mdl->l__d[inst],
@@ -182,8 +182,8 @@ void df_filtres_prixs(Mdl_t * mdl, uint inst, uint mode, uint t0, uint t1) {
 		d_nvidia_filtres_prixs___shared(
 			X_vars, Y_vars,
 			depart, T,
-			BLOQUES, F_PAR_BLOQUES, mdl->lignes__d, mdl->decales__d,
-			normalisee__d, dif_normalisee__d,
+			BLOQUES, F_PAR_BLOQUES, mdl->decales__d,
+			mdl->normalisee__d, mdl->dif_normalisee__d,
 			mdl->p__d[inst],
 			mdl->y__d[inst],
 			mdl->l__d[inst],

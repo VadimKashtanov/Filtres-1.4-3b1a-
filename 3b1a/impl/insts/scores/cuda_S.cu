@@ -12,7 +12,7 @@ static __global__ void kerd_nvidia_score_somme(
 	FOR(0, i, T) {
 		FOR(0, p, P) {
 			s += (P-p)*cuda_SCORE(
-				y[(depart+i)*P+p], _PRIXS[depart+i+p+1], _PRIXS[depart+i+p]
+				y[(depart+i)*P+p], _PRIXS[depart+i+p+1], _PRIXS[depart+i/*+p*/]
 			);
 		}
 	}
@@ -43,7 +43,7 @@ static __global__ void kerd_nvidia_prediction_somme(
 	uint thx = threadIdx.x + blockIdx.x * blockDim.x;
 	if (thx < T) {
 		float p1 = _PRIXS[depart+thx+canal_p+1];
-		float p0 = _PRIXS[depart+thx+canal_p];
+		float p0 = _PRIXS[depart+thx/*+canal_p*/];
 		atomicAdd(
 			pred,
 			1.0*(uint)(cuda_signe((y[(depart+thx)*P+canal_p])) == cuda_signe((p1/p0-1)))
@@ -83,7 +83,7 @@ static __global__ void kerd_nvidia_score_dpowf(
 	if (_t < T) {
 		FOR(0, p, P) {
 			dy[(depart+_t)*P+p] = (P-p)*cuda_dSCORE(
-				y[(depart+_t)*P+p], _PRIXS[depart+_t+p+1], _PRIXS[depart+_t+p]
+				y[(depart+_t)*P+p], _PRIXS[depart+_t+p+1], _PRIXS[depart+_t/*+p*/]
 			) / ((float)T*P);
 		}
 	}

@@ -7,7 +7,7 @@
 #define NORMER_LES_FILTRES false
 #define BORNER_LES_FILTRES true
 
-#define             C 12
+#define             C 9
 #define         MAX_Y 512
 #define       BLOQUES 64
 #define F_PAR_BLOQUES 8
@@ -32,13 +32,18 @@
 //	apres chaque optimisation les espaces doivent etre reinitialisés.
 //		filtre a par exemple besoin de normaliser (mais on va pas le faire, juste pour voire)
 
+//
+//	EMA_INSTS:
+//		ITERATIONS = 5
+//			analyse(analyse(analyse(analyse(analyse(source)))))
+
 typedef struct {
 	//	Filtre prixs
 	ema_int_t * bloque[BLOQUES];
 
 	//
-	uint decales[BLOQUES];
-	uint * decales__d;
+	uint decales[BLOQUES], intervalles[BLOQUES];
+	uint * decales__d, * intervalles__d;
 
 	//
 	float          normalisee[BLOQUES * PRIXS * N_FLTR];
@@ -81,6 +86,8 @@ Mdl_t * cree_mdl(
 	uint inst[C],
 	ema_int_t * bloques[BLOQUES]
 );
+//
+void enregistrer_les_lignes_brute(Mdl_t * mdl, char * fichier);
 //
 void        liberer_mdl(Mdl_t * mdl);
 //

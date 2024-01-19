@@ -10,7 +10,7 @@ void plume_filtre_prixs(Mdl_t * mdl, uint c);
 void intel_filtres_prixs___naive(				//	mode == 0
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint f_par_bloque, uint * ligne, uint * decales,
+	uint bloques, uint f_par_bloque, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,
@@ -19,7 +19,7 @@ void intel_filtres_prixs___naive(				//	mode == 0
 void nvidia_filtres_prixs___naive(			//	mode == 1
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint f_par_bloque, uint * ligne, uint * decales,
+	uint bloques, uint f_par_bloque, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,
@@ -28,7 +28,7 @@ void nvidia_filtres_prixs___naive(			//	mode == 1
 void nvidia_filtres_prixs___shared(			//	mode == 2
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint f_par_bloque, uint * ligne, uint * decales,
+	uint bloques, uint f_par_bloque, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,
@@ -41,7 +41,7 @@ void f_filtres_prixs(Mdl_t * mdl, uint inst, uint mode, uint t0, uint t1);
 void d_intel_filtres_prixs___naive(				//	mode == 0
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint f_par_bloque, uint * ligne, uint * decales,
+	uint bloques, uint f_par_bloque, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,
@@ -52,7 +52,7 @@ void d_intel_filtres_prixs___naive(				//	mode == 0
 void d_nvidia_filtres_prixs___naive(		//	mode == 1
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint f_par_bloque, uint * ligne, uint * decales,
+	uint bloques, uint f_par_bloque, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,
@@ -63,7 +63,7 @@ void d_nvidia_filtres_prixs___naive(		//	mode == 1
 void d_nvidia_filtres_prixs___shared(		//	mode == 2
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint f_par_bloque, uint * ligne, uint * decales,
+	uint bloques, uint f_par_bloque, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,

@@ -5,7 +5,8 @@
 #include "etc.cuh"
 
 #define PRIXS 55548 //u += u*f*levier*(p[i+L]/p[i]-1)
-#define P 1 //	[Nombre de sorties du Model]
+#define P 1 		//[Nombre de sorties du Model]
+#define P_INTERV 10	//(p[i+1+P*P_INTERV]/p[i]-1)
 
 #define N_FLTR  8
 #define N       N_FLTR
@@ -23,6 +24,8 @@
 //	--- Sources ---
 
 #define SOURCES 5
+
+extern char * nom_sources[SOURCES];
 
 //	Sources en CPU
 extern float   prixs[PRIXS];	//  prixs.bin
@@ -64,6 +67,14 @@ void liberer_tout();
 extern uint min_param[NATURES][MAX_PARAMS];
 extern uint max_param[NATURES][MAX_PARAMS];
 
+extern uint NATURE_PARAMS[NATURES];
+
+extern char * nom_natures[NATURES];
+
+#define       MAX_EMA 500
+#define      MAX_PLUS 500
+#define MAX_COEF_MACD 200
+
 typedef struct {
 	//	Intervalle
 	uint      K_ema;	//ASSERT(1 <=      ema   <= inf           )
@@ -73,33 +84,34 @@ typedef struct {
 	//	Nature
 	uint nature;
 	/*	Natures: ema-K, macd-k, chiffre-M, dx, dxdx, dxdxdx
-			directe : {}					// Juste le Ema_int
-			macd    : {plus0}   			// le macd sera ema(9)-ema(26) sur ema(prixs,k)     (brute[i] = ema[i] + brute[i-plus0])
-			chiffre : {cible}				// Peut importe la cible, mais des chiffres comme 50, 100, 1.000 ... sont bien
-			dx      : {plus0}				// dx(ema(arr, ema0), plus0)
-			dxdx    : {plus0, ema1, plus1} 	// dx := r[i+plus0]-r[i])
+			directe : {}							// Juste le Ema_int
+			macd    : {coef }   					// le macd sera ema(9*c)-ema(26*c) sur ema(prixs,k)
+			chiffre : {cible}						// Peut importe la cible, mais des chiffres comme 50, 100, 1.000 ... sont bien
+			dx      : {plus0, ema0}					// dx(ema(arr, ema0), plus0)
+			dxdx    : {plus0, ema0, plus1, ema1} 	// dx := r[i+plus0]-r[i])
 	*/
-	uint parametres[MAX_PARAMS];
+	uint params[MAX_PARAMS];
 
 	//	Valeurs
-	float                 ema[PRIXS *    1  ];
-	float               brute[PRIXS *    1  ];	//ligne d'analyse
-	//float          normalisee[PRIXS * N_FLTR];
-	//float      dif_normalisee[PRIXS * N_FLTR];
-	//
-	//float     * normalisee__d;
-	//float * dif_normalisee__d;
+	float   ema[PRIXS];
+	float brute[PRIXS];
 
 	/*	Note : dans `normalisee` et `dif_normalisee`
 	les intervalles sont deja calculee. Donc tout
 	ce qui est avant DEPART n'est pas initialisee (car pas utilisee).
 	*/
-	
 	uint source;
 } ema_int_t;
 
 void ema_int_calc_ema(ema_int_t * ema_int);
 
+//	Outils qui composent les natures
+void _outil_ema(float * y, float * x, uint K);
+void _outil_macd(float * y, float * x, float coef);
+void _outil_chiffre(float * y, float * x, float chiffre);
+void _outil_dx(float * y, float * x, uint plus);
+
+//	Les natures
 void nature0__direct (ema_int_t * ema_int);
 void nature1__macd   (ema_int_t * ema_int);
 void nature2__chiffre(ema_int_t * ema_int);
@@ -107,7 +119,7 @@ void nature3__dx     (ema_int_t * ema_int);
 void nature4__dxdx   (ema_int_t * ema_int);
 
 typedef void (*nature_f)(ema_int_t*);
-nature_f fonctions_nature[NATURES];
+extern nature_f fonctions_nature[NATURES];
 
 void      calculer_normalisee(ema_int_t * ema_int);
 void calculer_diff_normalisee(ema_int_t * ema_int);
@@ -115,3 +127,7 @@ void calculer_diff_normalisee(ema_int_t * ema_int);
 //	Mem
 ema_int_t * cree_ligne(uint source, uint nature, uint K_ema, uint intervalle, uint decale, uint params[MAX_PARAMS]);
 void     liberer_ligne(ema_int_t * ema_int);
+
+//	IO
+ema_int_t * lire_ema_int(FILE * fp);
+void      ecrire_ema_int(ema_int_t * ema_int, FILE * fp);

@@ -12,9 +12,20 @@ void mdl_plume_poids(Mdl_t * mdl) {
 void plumer_mdl(Mdl_t * mdl) {
 	printf("\033[4m Plume mdl\033[0m\n");
 	printf("Filtres : %i\n", mdl->Y[0]);
-	printf("Lignes des bloques : ");
-	FOR(0, i, BLOQUES) printf("(l=%i,d=%i), ", mdl->lignes[i], mdl->decales[i]);
-	printf("\n");
+	printf("Lignes des bloques (pour filtres_prixs): \n");
+	FOR(0, i, BLOQUES) {
+		printf("%3.i| %s  source=%s decale=%3.i intervalle=%3.i K_ema=%3.i ",
+			i,
+			nom_natures[mdl->bloque[i]->nature],
+			nom_sources[mdl->bloque[i]->source],
+			mdl->decales[i],
+			mdl->intervalles[i],
+			mdl->bloque[i]->K_ema
+		);
+		FOR(0, j, MAX_PARAMS) printf("P%i=%3.i ", j, mdl->bloque[i]->params[j]);
+		printf("\n");
+	}
+	printf("Instructions : \n");
 	uint POIDS = 0;
 	FOR(0, c, C) {
 		POIDS += mdl->inst_POIDS[c];

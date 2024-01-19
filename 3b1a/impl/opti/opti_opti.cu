@@ -29,7 +29,7 @@ void __interne_optimiser(
 		if (NORMER_LES_FILTRES) mdl_normer_les_filtres(mdl);
 		if (BORNER_LES_FILTRES) mdl_borner_les_filtres(mdl);
 		//
-		if (i % 10 == 0) {
+		if (i % 50 == 0) {
 			float* __pred = mdl_pred(mdl, t0, t1, 3);
 			float _score = mdl_score(mdl, t0, t1, 3);
 			printf("%3.i/%3.i| perf={", i, I);

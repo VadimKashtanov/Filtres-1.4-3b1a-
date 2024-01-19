@@ -61,8 +61,8 @@ static void calculer_normalisee__et__dif_normalisee(Mdl_t * mdl) {
 
 		FOR(DEPART, t, FIN) {
 			FOR(1, i, N_FLTR)
-				mdl->diff_normalisee[b*PRIXS*N_FLTR+t*N_FLTR+i] = mdl->normalisee[b*PRIXS*N_FLTR+t*N_FLTR+i] - mdl->normalisee[b*PRIXS*N_FLTR+t*N_FLTR+i-1];
-			mdl->diff_normalisee[b*PRIXS*N_FLTR+t*N_FLTR+N_FLTR+0] = 0.f;
+				mdl->dif_normalisee[b*PRIXS*N_FLTR+t*N_FLTR+i] = mdl->normalisee[b*PRIXS*N_FLTR+t*N_FLTR+i] - mdl->normalisee[b*PRIXS*N_FLTR+t*N_FLTR+i-1];
+			mdl->dif_normalisee[b*PRIXS*N_FLTR+t*N_FLTR+N_FLTR+0] = 0.f;
 		}
 	}
 
@@ -72,7 +72,7 @@ static void calculer_normalisee__et__dif_normalisee(Mdl_t * mdl) {
 
 Mdl_t * cree_mdl(
 	uint Y[C],
-	uint inst[C],
+	uint insts[C],
 	ema_int_t * bloque[BLOQUES]
 ) {
 	ASSERT(Y[C-1] == P);
@@ -83,11 +83,13 @@ Mdl_t * cree_mdl(
 
 	//
 	FOR(0, i, BLOQUES) {
-		mdl->bloque[i] = bloque[i];
+		mdl->bloque[i]  = bloque[i];
 		mdl->decales[i] = bloque[i]->decale;
+		mdl->intervalles[i] = bloque[i]->intervalle;
 	};
 
-	mdl->decales__d = cpu_vers_gpu<float>(mdl->decales, BLOQUES);
+	mdl->decales__d = cpu_vers_gpu<uint>(mdl->decales, BLOQUES);
+	mdl->intervalles__d = cpu_vers_gpu<uint>(mdl->intervalles, BLOQUES);
 
 	//
 	calculer_normalisee__et__dif_normalisee(mdl);
@@ -117,7 +119,8 @@ Mdl_t * cree_mdl(
 	}
 	ASSERT(mdl->inst_DEPART_SORTIE[C-1] == 0);
 	//
-	mdl_norme_filtres(mdl);
+	if (NORMER_LES_FILTRES) mdl_normer_les_filtres(mdl);
+	if (BORNER_LES_FILTRES) mdl_borner_les_filtres(mdl);
 	//
 	return mdl;
 };

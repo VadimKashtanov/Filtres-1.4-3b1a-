@@ -32,7 +32,7 @@ static __device__ float filtre_device(float * x, float * dif_x, float * f, float
 static __global__ void kerd_filtre_naive(
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint f_par_bloque, uint * ligne, uint * decales,
+	uint bloques, uint f_par_bloque, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,
@@ -44,8 +44,8 @@ static __global__ void kerd_filtre_naive(
 
 	if (_t < T && _b < bloques && _f < f_par_bloque) {
 		y[(depart+_t)*(bloques*f_par_bloque) + _b*f_par_bloque + _f] = filtre_device(
-			x + ligne[_b]*PRIXS*N_FLTR + (depart+_t-decales[_b])*N_FLTR,
-			dif_x + ligne[_b]*PRIXS*N_FLTR + (depart+_t-decales[_b])*N_FLTR,
+			x     + _b*PRIXS*N_FLTR + (depart+_t-decales[_b])*N_FLTR,
+			dif_x + _b*PRIXS*N_FLTR + (depart+_t-decales[_b])*N_FLTR,
 			f     + _b*f_par_bloque*N     + _f*N,
 			locd  + (depart+_t)*bloques*f_par_bloque*2 + _b*f_par_bloque*2 + _f*2
 		);
@@ -55,7 +55,7 @@ static __global__ void kerd_filtre_naive(
 void nvidia_filtres_prixs___naive(
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint f_par_bloque, uint * ligne, uint * decales,
+	uint bloques, uint f_par_bloque, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,
@@ -64,7 +64,7 @@ void nvidia_filtres_prixs___naive(
 	kerd_filtre_naive<<<dim3(KERD(T, BLOQUE_T), KERD(bloques, BLOQUE_B), KERD(f_par_bloque, BLOQUE_FB)), dim3(BLOQUE_T, BLOQUE_B, BLOQUE_FB)>>>(
 		X_vars, Y_vars,
 		depart, T,
-		bloques, f_par_bloque, ligne, decales,
+		bloques, f_par_bloque, decales,
 		x, dif_x,
 		f,
 		y,
@@ -90,7 +90,7 @@ __device__ static void d_nvidia_filtre(float * x, float * dif_x, float * f, floa
 __global__ static void  d_nvidia_kerd_filtre_naive(
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint f_par_bloque, uint * ligne, uint * decales,
+	uint bloques, uint f_par_bloque, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,
@@ -104,12 +104,12 @@ __global__ static void  d_nvidia_kerd_filtre_naive(
 
 	if (_t < T && _b < bloques && _f < f_par_bloque) {
 		d_nvidia_filtre(
-				x + ligne[_b]*PRIXS*N_FLTR + (depart+_t-decales[_b])*N_FLTR,
-			dif_x + ligne[_b]*PRIXS*N_FLTR + (depart+_t-decales[_b])*N_FLTR,
+				x + _b*PRIXS*N_FLTR + (depart+_t-decales[_b])*N_FLTR,
+			dif_x + _b*PRIXS*N_FLTR + (depart+_t-decales[_b])*N_FLTR,
 			f     + _b*f_par_bloque*N     + _f*N,
 			locd  + (depart+_t)*(bloques*f_par_bloque*2) + _b*(f_par_bloque*2) + _f*2,
-			dy + (depart+_t)*bloques*f_par_bloque + _b*f_par_bloque + _f,
-			df     + _b*f_par_bloque*N     + _f*N
+			dy    + (depart+_t)*bloques*f_par_bloque + _b*f_par_bloque + _f,
+			df    + _b*f_par_bloque*N     + _f*N
 		);
 	}
 };
@@ -117,7 +117,7 @@ __global__ static void  d_nvidia_kerd_filtre_naive(
 void d_nvidia_filtres_prixs___naive(
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint f_par_bloque, uint * ligne, uint * decales,
+	uint bloques, uint f_par_bloque, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,
@@ -128,7 +128,7 @@ void d_nvidia_filtres_prixs___naive(
 	d_nvidia_kerd_filtre_naive<<<dim3(KERD(T, BLOQUE_T), KERD(bloques, BLOQUE_B), KERD(f_par_bloque, BLOQUE_FB)), dim3(BLOQUE_T, BLOQUE_B, BLOQUE_FB)>>>(
 		X_vars, Y_vars,
 		depart, T,
-		bloques, f_par_bloque, ligne, decales,
+		bloques, f_par_bloque, decales,
 		x, dif_x,
 		f,
 		y,

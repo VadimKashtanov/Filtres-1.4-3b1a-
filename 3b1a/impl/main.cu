@@ -12,13 +12,15 @@ static void plume_pred(Mdl_t * mdl, uint t0, uint t1) {
 
 float pourcent_masque_nulle[C] = {0};
 
-float * pourcent_masque = de_a(0.0, 0.00, C);
+float * pourcent_masque = de_a(0.10, 0.00, C);
 
 //	! A FAIRE ! :
 //		selection (mutation de +/- 1 ligne (de meme source))
 //
 
-float * alpha = de_a(2e-3, 2e-3, C);
+//	# Un jour reflechire a f(x@p0 + b0) * f(x@p1 + b1) + f(x@p2 + b2)
+
+float * alpha = de_a(2e-4, 2e-4, C);
 
 //	## (x/3) * (x-2)**2                     ##
 //	## score(x) + rnd()*abs(score(x))*0.05  ##
@@ -37,43 +39,62 @@ int main(int argc, char ** argv) {
 
 	//===============
 	titre("  Programme Generale  ");
+	ecrire_structure_generale("structure_generale.bin");
 
-	/*uint Y[C] = {
+	uint Y[C] = {
 		512,
-		256,256,
-		128,128,128,
+		512,
+		256,
+		128,
 		64,
 		32,
 		16,
 		8,
-		4,
 		P
 	};
 	uint insts[C] = {
 		FILTRES_PRIXS,
-		DOT1D,DOT1D,
-		DOT1D,DOT1D,
-		DOT1D,DOT1D,
+		DOT1D,
+		DOT1D,
+		DOT1D,
 		DOT1D,
 		DOT1D,
 		DOT1D,
 		DOT1D,
 		DOT1D
 	};
-	//
-	uint lignes [BLOQUES] = {0};
-	uint decales[BLOQUES] = {0};
-	FOR(0, i, BLOQUES) {
-		lignes[i] = rand() % EMA_INTS;
-		decales[i] = rand() % MAX_DECALES;
-	};
 	//	Assurances :
-	FOR(0, i, EMA_INTS) {
-		lignes [i] = i;
-		decales[i] = 0;
+	ema_int_t * bloque[BLOQUES];
+	uint params[MAX_PARAMS];
+	FOR(0, i, BLOQUES) {
+		uint source     = rand() % SOURCES;
+		uint nature     = 0;//rand() % NATURES;
+		uint K_ema      = 1;//rand() % MAX_EMA,
+		uint intervalle = 1;//rand() % MAX_INTERVALLE,
+		uint decale     = 0;//rand() % MAX_DECALES,
+		//
+		FOR(0, j, MAX_PARAMS) {
+			if (max_param[nature][j]-min_param[nature][j] != 0)
+				params[j] = min_param[nature][j] + (rand() % (max_param[nature][j]-min_param[nature][j]));
+			else
+				params[j] = max_param[nature][j];
+		}
+		//
+		bloque[i] = cree_ligne(
+			source,
+			nature,
+			K_ema,
+			intervalle,
+			decale,
+			params
+		);
 	}
 	//
-	Mdl_t * mdl = cree_mdl(Y, insts, lignes, decales);*/
+	Mdl_t * mdl = cree_mdl(Y, insts, bloque);
+
+	//Mdl_t * mdl = ouvrire_mdl("mdl.bin");
+
+	enregistrer_les_lignes_brute(mdl, "lignes_brute.bin");
 
 
 	/*
@@ -96,15 +117,6 @@ int main(int argc, char ** argv) {
 
 	*/
 
-	/*	==============
-
-		Faire un 
-		FOR(0, i, POIDS)
-			poid[i] += (2*rnd()-1)*0.10
-	*/
-
-	Mdl_t * mdl = ouvrire_mdl("mdl.bin");
-
 	plumer_mdl(mdl);
 
 	//	================= Initialisation ==============
@@ -112,30 +124,31 @@ int main(int argc, char ** argv) {
 	uint t1 = ROND_MODULO(FIN, (16*16));
 	printf("t0=%i t1=%i FIN=%i (t1-t0=%i, %%(16*16)=%i)\n", t0, t1, FIN, t1-t0, (t1-t0)%(16*16));
 	//
-	//plume_pred(mdl, t0, t1);
+	plume_pred(mdl, t0, t1);
+	//comportement(mdl, t0, t0+16*16);
 	//
 	uint REP = 150;
 	FOR(0, rep, REP) {
-		/*FOR(0, i, 10) {
+		FOR(0, i, 10) {
 			printf(" ================== %i/10 ================\n", i);
 			optimisation_mini_packet(
 				mdl,
-				t0, t1, 16*16*100,
+				t0, t1, 16*16*1,
 				alpha, 1.0,
-				RMSPROP, 2000,
+				RMSPROP, 300,
 				pourcent_masque);
 			plume_pred(mdl, t0, t1);
 			mdl_gpu_vers_cpu(mdl);
 			ecrire_mdl(mdl, "mdl.bin");
-		}*/
+		}
 		//
-		optimiser(
+		/*optimiser(
 			mdl,
 			t0, t1,
 			alpha, 1.0,
 			RMSPROP, 2000,
 			//pourcent_masque_nulle);
-			pourcent_masque);
+			pourcent_masque);*/
 		//
 		mdl_gpu_vers_cpu(mdl);
 		ecrire_mdl(mdl, "mdl.bin");

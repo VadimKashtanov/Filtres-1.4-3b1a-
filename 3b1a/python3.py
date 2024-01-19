@@ -4,6 +4,14 @@ from math import exp, tanh
 import struct as Y
 import numpy as np
 
+def lire_ligne_model(ligne):
+	with open("/home/vadim/Bureau/Filtres-V1.4+ (versions)/3b1a/lignes_brute.bin", "rb") as co: bins = co.read()
+	import struct as st
+	import matplotlib.pyplot as plt
+	BLOQUES, PRIXS = st.unpack('II', bins[:8])
+	__lignes = [st.unpack('f'*PRIXS, bins[8+(i*PRIXS)*4:8+4*(i+1)*PRIXS]) for i in range(BLOQUES)]
+	plt.plot(__lignes[ligne]);plt.show()
+
 N = 8
 
 def lire_uint(I, _bin):

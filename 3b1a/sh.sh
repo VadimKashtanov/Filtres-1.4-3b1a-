@@ -18,6 +18,12 @@ A="-Idef -diag-suppress 2464 -O3 -lm -lcublas_static -lcublasLt_static -lculibos
 #	/etc
 nvcc -c impl/etc/etc.cu     ${A} &
 nvcc -c	impl/etc/marchee.cu ${A} &
+nvcc -c	impl/etc/nature0__directe.cu ${A} &
+nvcc -c	impl/etc/nature1__macd.cu    ${A} &
+nvcc -c	impl/etc/nature2__chiffre.cu ${A} &
+nvcc -c	impl/etc/nature3__dx.cu      ${A} &
+nvcc -c	impl/etc/nature4__dxdx.cu    ${A} &
+nvcc -c	impl/etc/outils_natures.cu   ${A} &
 #	/insts
 nvcc -c impl/insts/dot1d.cu                    ${A} &
 nvcc -c impl/insts/dot1d/dot1d_naive.cu        ${A} &
@@ -53,7 +59,8 @@ nvcc -c impl/opti/opti_opti.cu         ${A} &
 nvcc -c impl/opti/opti_masque.cu       ${A} &
 nvcc -c impl/opti/opti_mini_paquets.cu ${A} &
 #
-nvcc -c impl/main/verif_mdl.cu    ${A} &
+nvcc -c impl/main/verif_mdl.cu          ${A} &
+nvcc -c impl/main/structure_generale.cu ${A} &
 #
 #	Attente de terminaison des differents fils de compilation
 #
@@ -68,6 +75,9 @@ nvcc *.o -o prog2__resultats ${A}; rm prog2__resultats.o
 #	Compilation prog3
 nvcc -c impl/prog3__plume_filtre.cu ${A}
 nvcc *.o -o prog3__plume_filtre ${A}; rm prog3__plume_filtre.o
+#	Compilation prog4
+nvcc -c impl/prog4__sel_entrainnement.cu ${A}
+nvcc *.o -o prog4__sel_entrainnement ${A}; rm prog4__sel_entrainnement.o
 
 #	Verification d'erreure
 if [ $? -eq 1 ]

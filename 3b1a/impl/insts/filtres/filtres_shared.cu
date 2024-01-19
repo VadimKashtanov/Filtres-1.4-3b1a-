@@ -9,7 +9,7 @@
 static __global__ void kerd_filtre_shared(
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint * lignes, uint * decales,
+	uint bloques, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,
@@ -21,7 +21,7 @@ static __global__ void kerd_filtre_shared(
 	uint _b = blockIdx.x;
 	uint _f = blockIdx.z;	//(ligne dans bloque)
 
-	uint LIGNE  = lignes[_b];
+	uint LIGNE  = _b;
 	uint BLOQUE = _b; 
 
 	uint thx = threadIdx.x;
@@ -85,7 +85,7 @@ static __global__ void kerd_filtre_shared(
 void nvidia_filtres_prixs___shared(
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint f_par_bloque, uint * ligne, uint * decales,
+	uint bloques, uint f_par_bloque, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,
@@ -95,7 +95,7 @@ void nvidia_filtres_prixs___shared(
 	kerd_filtre_shared<<<dim3(bloques, KERD((DIV(T,_repete_T)), BLOQUE_T), F_PAR_BLOQUES), dim3(N, BLOQUE_T,1)>>>(
 		X_vars, Y_vars,
 		depart, T,
-		bloques, ligne, decales,
+		bloques, decales,
 		x, dif_x,
 		f,
 		y,
@@ -106,7 +106,7 @@ void nvidia_filtres_prixs___shared(
 static __global__ void d_kerd_filtre_shared(
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint * lignes, uint * decales,
+	uint bloques, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,
@@ -120,7 +120,7 @@ static __global__ void d_kerd_filtre_shared(
 	uint _b = blockIdx.x;
 	uint _f = blockIdx.z;	//(ligne dans bloque)
 
-	uint LIGNE  = lignes[_b];
+	uint LIGNE  = _b;
 	uint BLOQUE = _b; 
 
 	uint thx = threadIdx.x;
@@ -183,7 +183,7 @@ static __global__ void d_kerd_filtre_shared(
 void d_nvidia_filtres_prixs___shared(
 	uint X_vars, uint Y_vars,
 	uint depart, uint T,
-	uint bloques, uint f_par_bloque, uint * ligne, uint * decales,
+	uint bloques, uint f_par_bloque, uint * decales,
 	float * x, float * dif_x,
 	float * f,
 	float * y,
@@ -195,7 +195,7 @@ void d_nvidia_filtres_prixs___shared(
 	d_kerd_filtre_shared<<<dim3(bloques, KERD((DIV(T,_repete_T)), BLOQUE_T), F_PAR_BLOQUES), dim3(N, BLOQUE_T,1)>>>(
 		X_vars, Y_vars,
 		depart, T,
-		bloques, ligne, decales,
+		bloques, decales,
 		x, dif_x,
 		f,
 		y,
